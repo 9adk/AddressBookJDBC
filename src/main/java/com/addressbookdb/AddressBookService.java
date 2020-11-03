@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,18 +24,18 @@ public class AddressBookService {
 	public static String FILE_NAME = "AddressBook.txt";
 	public static String CSV_FILE = "AddressBook.csv";
 	public static String JSON_FILE = "AddressBook.json";
+
 	public enum IOService {
 		CONSOLE_IO, FILE_IO, DB_IO, REST_IO
 	};
-	
+
 	private List<Contact> contactList = new ArrayList<>();
 	private AddressBookDB addressBookDB;
-	
+
 	public AddressBookService() {
 		addressBookDB = AddressBookDB.getInstance();
 	}
 
-	
 	public void writeData(Map<String, AddressBook> cityBookMap) {
 		StringBuffer employeeBuffer = new StringBuffer();
 		for (Map.Entry<String, AddressBook> entry : cityBookMap.entrySet()) {
@@ -141,13 +142,13 @@ public class AddressBookService {
 			exception.printStackTrace();
 		}
 	}
+
 	public List<Contact> readContactData(IOService ioService) throws DatabaseException {
 		if (ioService.equals(IOService.DB_IO)) {
 			this.contactList = addressBookDB.readData();
 		}
 		return this.contactList;
 	}
-
 
 	public void updatePersonsPhone(String name, String phone) throws DatabaseException, SQLException {
 		int result = addressBookDB.updatePersonsData(name, phone);
@@ -158,17 +159,19 @@ public class AddressBookService {
 			contact.phoneNumber = Long.parseLong(phone);
 	}
 
-
 	private Contact getContact(String fname) {
 		Contact contact = this.contactList.stream().filter(contactData -> contactData.firstName.equals(fname))
 				.findFirst().orElse(null);
 		return contact;
 	}
 
-
 	public boolean checkContactDataSync(String name) throws com.addressbookdb.DatabaseException {
 		List<Contact> employeeList = addressBookDB.getContactFromData(name);
 		return employeeList.get(0).equals(getContact(name));
-		
+
+	}
+
+	public List<Contact> getContactForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
+		return addressBookDB.getEmployeeForDateRange(start, end);
 	}
 }

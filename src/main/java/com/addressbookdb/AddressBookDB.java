@@ -1,15 +1,15 @@
 package com.addressbookdb;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-
 
 public class AddressBookDB {
 	private static PreparedStatement contactStatement;
@@ -24,6 +24,7 @@ public class AddressBookDB {
 		}
 		return addressBookDB;
 	}
+
 	private Connection getConnection() throws DatabaseException {
 		String jdbcURL = "jdbc:mysql://localhost:3306/addressBookService?useSSL=false";
 		String userName = "root";
@@ -38,10 +39,11 @@ public class AddressBookDB {
 		return connection;
 
 	}
+
 	public List<Contact> readData() throws DatabaseException {
 		String sql = " select contact_table.contact_id, contact_table.fname,contact_table.lname,contact_table.address,contact_table.zip, "
-                     + "contact_table.city, contact_table.state, contact_table.phone,contact_table.email,addressBook.addName, addressBook.type "
-                     + "from contact_table inner join addressBook on contact_table.contact_id = addressBook.contacts_id; ";
+				+ "contact_table.city, contact_table.state, contact_table.phone,contact_table.email,addressBook.addName, addressBook.type "
+				+ "from contact_table inner join addressBook on contact_table.contact_id = addressBook.contacts_id; ";
 		return this.getContactData(sql);
 	}
 
@@ -51,10 +53,11 @@ public class AddressBookDB {
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(sql);
 			contactList = this.getContactData(resultSet);
+			return contactList;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return contactList;			
+		return contactList;
 	}
 
 	public int updatePersonsData(String name, String phone) throws DatabaseException, SQLException {
@@ -64,14 +67,13 @@ public class AddressBookDB {
 	private int updatePersonsDataUsingStatement(String name, String phone) throws DatabaseException, SQLException {
 		String sql = "Update contact_table set phone = ? where fname = ?";
 		int result = 0;
-		List<Contact> contactList = null;
 		if (this.contactStatement == null) {
 			Connection connection = this.getConnection();
 			contactStatement = connection.prepareStatement(sql);
 		}
 		try {
 			contactStatement.setLong(1, Long.parseLong(phone));
-			contactStatement.setString(2,name);
+			contactStatement.setString(2, name);
 			result = contactStatement.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -90,7 +92,7 @@ public class AddressBookDB {
 			String state = resultSet.getString("state");
 			long phoneNumber = resultSet.getLong("phone");
 			String email = resultSet.getString("email");
-			contactList.add(new Contact(fname,lname,address,state,city,zip,phoneNumber,email));
+			contactList.add(new Contact(fname, lname, address, state, city, zip, phoneNumber, email));
 		}
 		return contactList;
 	}
@@ -105,9 +107,14 @@ public class AddressBookDB {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return contactList;			
+		return contactList;
 	}
 
-	
+	public List<Contact> getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
+		String sql = String.format(
+				"select contact_table.contact_id, contact_table.fname,contact_table.lname,contact_table.address,contact_table.zip, contact_table.city, contact_table.state, contact_table.phone,contact_table.email,contact_table.date, addressBook.addName, addressBook.type from contact_table inner join addressBook on contact_table.contact_id = addressBook.contacts_id where date between '%s' and '%s'",
+				Date.valueOf(start), Date.valueOf(end));
+		return this.getContactData(sql);
+	}
 
 }
