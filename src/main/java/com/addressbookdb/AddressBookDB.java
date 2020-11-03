@@ -110,10 +110,16 @@ public class AddressBookDB {
 		return contactList;
 	}
 
-	public List<Contact> getEmployeeForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
-		String sql = String.format(
-				"select contact_table.contact_id, contact_table.fname,contact_table.lname,contact_table.address,contact_table.zip, contact_table.city, contact_table.state, contact_table.phone,contact_table.email,contact_table.date, addressBook.addName, addressBook.type from contact_table inner join addressBook on contact_table.contact_id = addressBook.contacts_id where date between '%s' and '%s'",
+	public List<Contact> getContactForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
+		String sql = String.format("select contact_table.contact_id, contact_table.fname,contact_table.lname,contact_table.address,contact_table.zip, contact_table.city, contact_table.state, "
+				+ "contact_table.phone,contact_table.email,contact_table.date, addressBook.addName, addressBook.type from contact_table "
+				+ "inner join addressBook on contact_table.contact_id = addressBook.contacts_id where date between '%s' and '%s'",
 				Date.valueOf(start), Date.valueOf(end));
+		return this.getContactData(sql);
+	}
+
+	public List<Contact> getContactForCityAndState(String city, String state) throws DatabaseException {
+		String sql = String.format("select * from contact_table where city = 'Akola' order by fname,lname;",city, state);
 		return this.getContactData(sql);
 	}
 

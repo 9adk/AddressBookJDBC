@@ -172,6 +172,10 @@ public class AddressBookService {
 	}
 
 	public List<Contact> getContactForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
-		return addressBookDB.getEmployeeForDateRange(start, end);
+		return addressBookDB.getContactForDateRange(start, end);
+	}
+
+	public List<Contact> getContactForCityAndState(String city, String state) throws DatabaseException {
+		return addressBookDB.getContactForCityAndState(city, state);
 	}
 }
