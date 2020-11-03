@@ -178,4 +178,8 @@ public class AddressBookService {
 	public List<Contact> getContactForCityAndState(String city, String state) throws DatabaseException {
 		return addressBookDB.getContactForCityAndState(city, state);
 	}
+	public void addContactInDatabase(String fname, String lname, String address, String zip,String city,String state, String phone, String email,
+                                     LocalDate date, String addName, String type) throws SQLException, DatabaseException {
+		this.contactList.add(addressBookDB.addContact(fname, lname, address,zip,city,state,phone,email,date,addName,type));
+	}
 }
