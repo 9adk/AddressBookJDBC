@@ -1,12 +1,12 @@
 package com.addressbookdb;
 public class Contact{
-	private String firstName;
-	private String lastName;
+	public String firstName;
+	public String lastName;
 	private String address;
 	private String city;
 	private String state;
 	private long zip;
-	private long phoneNumber;
+	public long phoneNumber;
 	private String email;
 	
 	public Contact(String firstName,String lastName,String address,String city,String state,long zip,long phoneNumber,String email) {
