@@ -13,9 +13,7 @@ public class Contact{
 	public long phoneNumber;
 	public String email;
 	public int addId;
-	public String addName;
 	public LocalDate date;
-	public String type;
 	public Contact(String firstName,String lastName,String address,String city,String state,long zip,long phoneNumber,String email) {
 	    this.firstName = firstName;
 	    this.lastName = lastName;
@@ -27,19 +25,11 @@ public class Contact{
 	    this.email = email;
 	}
 	public Contact(String firstName,String lastName,String address,String city,String state,long zip,long phoneNumber,String email,LocalDate date,
-			int addressBookId, String addName, String type) {
-	    this.firstName = firstName;
-	    this.lastName = lastName;
-	    this.address = address;
-	    this.city = city;
-	    this.state = state;
-	    this.zip = zip;
-	    this.phoneNumber = phoneNumber;
-	    this.email = email;
+			int add_id) {
+	    this(firstName,lastName,address,city,state,zip,phoneNumber,email);
 	    this.date = date;
-	    this.addId = addressBookId;
-	    this.addName = addName;
-	    this.type = type;
+	    this.addId = add_id;
+	   
 	}
 	@Override
 	public int hashCode() {

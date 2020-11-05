@@ -61,15 +61,15 @@ public class AddressBookTest {
 	public void givenContactInDB_WhenAdded_ShouldBeAddedInSingleTransaction() throws DatabaseException, SQLException {
 		AddressBookService addressBookService = new AddressBookService();
 		addressBookService.readContactData(IOService.DB_IO);
-		addressBookService.addContactInDatabase("Aniket", "Sarap", "Kaulkhed", 444001L, "Akola", "Maharashtra",
-                                               8844557722L, "abc@d.com", LocalDate.of(2021, 01, 01), 1,"AddressBook1", "family");
+		addressBookService.addContactInDatabase("Aniket","Sarap", "Kaulkhed", 444001L, "Akola", "Maharashtra",
+                                               8844557722L, "abc@d.com", LocalDate.of(2021, 01, 01), 1);
 		boolean result = addressBookService.checkContactDataSync("Aniket");
 		assertEquals(true, result);
 	}
 	@Test
 	public void geiven2Contacts_WhenAddedToDB_ShouldMatchContactEntries() throws DatabaseException {
-		Contact[] contactArray = { new Contact("Aniket","Sarap","Kaulkhed", "Akola","Maharashtra", 444001L, 8850273350L,"abcd@gmail.com",LocalDate.of(2021, 01, 01),2,"AddressBook2","friend"),
-				new Contact("Sachin","Badhe","Kaulkhed", "Akola","Maharashtra", 444001L, 7887483853L,"abcd@gmail.com",LocalDate.of(2021, 01, 01),2,"AddressBook2","friend")};
+		Contact[] contactArray = { new Contact("Aniket","Sarap","Kaulkhed", "Akola","Maharashtra", 444001L, 8850273350L,"abcd@gmail.com",LocalDate.of(2021, 01, 01),2),
+				new Contact("Sachin","Badhe","Kaulkhed", "Akola","Maharashtra", 444001L, 7887483853L,"abcd@gmail.com",LocalDate.of(2021, 01, 01),2)};
 		AddressBookService addressBookService = new AddressBookService();
 		addressBookService.readContactData(IOService.DB_IO);
 		Instant start = Instant.now();
