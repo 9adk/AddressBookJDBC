@@ -1,4 +1,4 @@
-package com.addressbookdb;
+package com.capgemini.addressbookdb;
 import java.util.Comparator;
 
 public class SortByName implements Comparator<Contact> {

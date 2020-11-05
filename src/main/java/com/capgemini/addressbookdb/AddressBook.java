@@ -1,4 +1,4 @@
-package com.addressbookdb;
+package com.capgemini.addressbookdb;
 
 import java.util.ArrayList;
 import java.util.List;

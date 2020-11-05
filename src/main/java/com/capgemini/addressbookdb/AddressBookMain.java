@@ -1,4 +1,4 @@
-package com.addressbookdb;
+package com.capgemini.addressbookdb;
 
 import java.io.IOException;
 import java.util.*;

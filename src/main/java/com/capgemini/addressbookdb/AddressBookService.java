@@ -1,4 +1,4 @@
-package com.addressbookdb;
+package com.capgemini.addressbookdb;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -143,6 +143,11 @@ public class AddressBookService {
 		}
 	}
 
+	/**
+	 * Usecase16: Retrieve data from the database
+	 * 
+	 * @throws DatabaseException
+	 */
 	public List<Contact> readContactData(IOService ioService) throws DatabaseException {
 		if (ioService.equals(IOService.DB_IO)) {
 			this.contactList = addressBookDB.readData();
@@ -150,36 +155,148 @@ public class AddressBookService {
 		return this.contactList;
 	}
 
-	public void updatePersonsPhone(String name, String phone) throws DatabaseException, SQLException {
+	/**
+	 * Usecase17: Updating phone number of a persons in contact table
+	 * 
+	 * @throws DatabaseException
+	 * @throws SQLException
+	 */
+	public void updatePersonsPhone(String name, long phone) throws DatabaseException, SQLException {
 		int result = addressBookDB.updatePersonsData(name, phone);
 		if (result == 0)
 			return;
 		Contact contact = this.getContact(name);
 		if (contact != null)
-			contact.phoneNumber = Long.parseLong(phone);
+			contact.phoneNumber = phone;
 	}
 
-	private Contact getContact(String fname) {
-		Contact contact = this.contactList.stream().filter(contactData -> contactData.firstName.equals(fname))
+	private Contact getContact(String name) {
+		String[] fullName = name.split(" ");
+		Contact contact = this.contactList.stream().filter(
+				contactData -> contactData.firstName.equals(fullName[0]) && contactData.lastName.equals(fullName[1]))
 				.findFirst().orElse(null);
 		return contact;
 	}
 
-	public boolean checkContactDataSync(String name) throws com.addressbookdb.DatabaseException {
+	public boolean checkContactDataSync(String name) throws com.capgemini.addressbookdb.DatabaseException {
 		List<Contact> employeeList = addressBookDB.getContactFromData(name);
 		return employeeList.get(0).equals(getContact(name));
 
 	}
 
+	/**
+	 * Usecase18: retrieving data from the table between data range
+	 * 
+	 * @throws DatabaseException
+	 */
 	public List<Contact> getContactForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
 		return addressBookDB.getContactForDateRange(start, end);
 	}
 
+	/**
+	 * Usecase19: retrieving data from the table for city and state
+	 * 
+	 * @throws DatabaseException
+	 */
 	public List<Contact> getContactForCityAndState(String city, String state) throws DatabaseException {
 		return addressBookDB.getContactForCityAndState(city, state);
 	}
-	public void addContactInDatabase(String fname, String lname, String address, String zip,String city,String state, String phone, String email,
-                                     LocalDate date, String addName, String type) throws SQLException, DatabaseException {
-		this.contactList.add(addressBookDB.addContact(fname, lname, address,zip,city,state,phone,email,date,addName,type));
+
+	/**
+	 * Usecase20: Insert data into database in a single transaction
+	 * 
+	 * @throws DatabaseException
+	 * @throws SQLException
+	 */
+	public void addContactInDatabase(String fname, String lname, String address, long zip, String city, String state,
+                                     long phone, String email, LocalDate date, int addId, String addName, String type)
+                                     throws SQLException, DatabaseException {
+		this.contactList.add(addressBookDB.addContact(fname, lname, address, zip, city, state, phone, email, date,
+				addId, addName, type));
+	}
+
+	/**
+	 * Usecase21 : Adding multiple contacts in the table using multi threading
+	 * 
+	 * @param contactList
+	 */
+	public void addContactToDB(List<Contact> contactList) {
+		contactList.forEach(contact -> {
+			Runnable task = () -> {
+				System.out.println("Contact Being Added: " + Thread.currentThread().getName());
+				try {
+					this.addContactDB(contact.firstName, contact.lastName, contact.address, contact.zip, contact.city,
+							contact.state, contact.phoneNumber, contact.email, contact.date, contact.addId,
+							contact.addName, contact.type);
+				} catch (SQLException | DatabaseException e) {
+					e.printStackTrace();
+				}
+				System.out.println("Contact Added: " + Thread.currentThread().getName());
+			};
+			Thread thread = new Thread(task, contact.firstName);
+			thread.start();
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	private void addContactDB(String fname, String lname, String address, long zip, String city, String state,
+                              long phone, String email, LocalDate date, int addId, String addName, String type)
+                              throws com.capgemini.addressbookdb.DatabaseException, SQLException {
+		this.contactList.add(addressBookDB.addContact(fname, lname, address, zip, city, state, phone, email, date,
+				addId, addName, type));
+	}
+
+	public long countEntries(IOService ioService) {
+		int result = 0;
+		if (ioService.equals(IOService.DB_IO)) {
+			result = contactList.size();
+		}
+		return result;
+	}
+
+	/**
+	 * Usecase21: Updating the table data using the multi threading
+	 * 
+	 * @param contactMap
+	 */
+	public void updatePhoneNumber(Map<String, Long> contactMap) {
+		contactMap.forEach((k, v) -> {
+			Runnable task = () -> {
+				System.out.println("Contact Being Added: " + Thread.currentThread().getName());
+				try {
+					this.updatePersonsPhone(k, v);
+				} catch (SQLException | DatabaseException e) {
+					e.printStackTrace();
+				}
+				System.out.println("Contact Added: " + Thread.currentThread().getName());
+			};
+			Thread thread = new Thread(task, k);
+			thread.start();
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public boolean checkContactInSyncWithDB(List<String> nameList) throws DatabaseException {
+		List<Boolean> resultList = new ArrayList<>();
+		nameList.forEach(name -> {
+			List<Contact> employeeList;
+			try {
+				employeeList = addressBookDB.getContactFromData(name);
+				resultList.add(employeeList.get(0).equals(getContact(name)));
+			} catch (DatabaseException e) {
+			}
+		});
+		if (resultList.contains(false)) {
+			return false;
+		}
+		return true;
 	}
 }

@@ -1,4 +1,4 @@
-package com.addressbookdb;
+package com.capgemini.addressbookdb;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -39,11 +39,15 @@ public class AddressBookDB {
 		return connection;
 
 	}
-
+	/**
+	 * Usecase16: Retrieve data from the database
+	 * 
+	 * @throws DatabaseException
+	 */
 	public List<Contact> readData() throws DatabaseException {
 		String sql = " select contact_table.contact_id, contact_table.fname,contact_table.lname,contact_table.address,contact_table.zip, "
 				+ "contact_table.city, contact_table.state, contact_table.phone,contact_table.email,addressBook.addName, addressBook.type "
-				+ "from contact_table inner join addressBook on contact_table.contact_id = addressBook.contacts_id; ";
+				+ "from contact_table inner join addressBook on contact_table.contact_id = addressBook.contact_id; ";
 		return this.getContactData(sql);
 	}
 
@@ -59,21 +63,28 @@ public class AddressBookDB {
 		}
 		return contactList;
 	}
-
-	public int updatePersonsData(String name, String phone) throws DatabaseException, SQLException {
+	/**
+	 * Usecase17: Updating phone number of a persons in contact table
+	 * 
+	 * @throws DatabaseException
+	 * @throws SQLException
+	 */
+	public int updatePersonsData(String name, long phone) throws DatabaseException, SQLException {
 		return this.updatePersonsDataUsingStatement(name, phone);
 	}
 
-	private int updatePersonsDataUsingStatement(String name, String phone) throws DatabaseException, SQLException {
-		String sql = "Update contact_table set phone = ? where fname = ?";
+	private int updatePersonsDataUsingStatement(String name, long phone) throws DatabaseException, SQLException {
+		String[] fullName = name.split(" ");
+		String sql = "Update contact_table set phone = ? where fname = ? and lname = ?";
 		int result = 0;
 		if (this.contactStatement == null) {
 			Connection connection = this.getConnection();
 			contactStatement = connection.prepareStatement(sql);
 		}
 		try {
-			contactStatement.setLong(1, Long.parseLong(phone));
-			contactStatement.setString(2, name);
+			contactStatement.setLong(1, phone);
+			contactStatement.setString(2, fullName[0]);
+			contactStatement.setString(3, fullName[1]);
 			result = contactStatement.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -98,7 +109,8 @@ public class AddressBookDB {
 	}
 
 	public List<Contact> getContactFromData(String name) throws DatabaseException {
-		String sql = String.format("SELECT * FROM contact_table WHERE fname = '%s'", name);
+		String[] fullName = name.split(" ");
+		String sql = String.format("SELECT * FROM contact_table WHERE fname = '%s' and lname = '%s'", fullName[0],fullName[1]);
 		List<Contact> contactList = new ArrayList<>();
 		try (Connection connection = this.getConnection()) {
 			Statement statement = connection.createStatement();
@@ -121,7 +133,7 @@ public class AddressBookDB {
 	public List<Contact> getContactForDateRange(LocalDate start, LocalDate end) throws DatabaseException {
 		String sql = String.format("select contact_table.contact_id, contact_table.fname,contact_table.lname,contact_table.address,contact_table.zip, contact_table.city, contact_table.state, "
                                    + "contact_table.phone,contact_table.email,contact_table.date, addressBook.addName, addressBook.type from contact_table "
-                                   + "inner join addressBook on contact_table.contact_id = addressBook.contacts_id where date between '%s' and '%s'",
+                                   + "inner join addressBook on contact_table.contact_id = addressBook.contact_id where date between '%s' and '%s'",
                                    Date.valueOf(start), Date.valueOf(end));
 		return this.getContactData(sql);
 	}
@@ -155,12 +167,12 @@ public class AddressBookDB {
 	 * @param addName
 	 * @param type
 	 * @return
-	 * @throws com.addressbookdb.DatabaseException
+	 * @throws com.capgemini.addressbookdb.DatabaseException
 	 * @throws SQLException
 	 */
-	public Contact addContact(String fname, String lname, String address, String zip, String city, String state,
-			String phone, String email, LocalDate date, String addName, String type)
-			throws com.addressbookdb.DatabaseException, SQLException {
+	public Contact addContact(String fname, String lname, String address, long zip, String city, String state,
+			long phone, String email, LocalDate date,int addId,String addName, String type)
+			throws com.capgemini.addressbookdb.DatabaseException, SQLException {
 		int contactId = -1;
 		Connection connection = null;
 		Contact contact = null;
@@ -173,7 +185,7 @@ public class AddressBookDB {
 		try (Statement statement = connection.createStatement()) {
 			String sql = String.format("INSERT INTO contact_table (fname, lname, address,zip,city,state,phone,email,date) "
                                        + "VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s')",
-                                       fname, lname, address, Long.parseLong(zip), city, state, Long.parseLong(phone), email, date);
+                                       fname, lname, address, zip, city, state, phone, email, date);
 			int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
 			if (rowAffected == 1) {
 				ResultSet resultSet = statement.getGeneratedKeys();
@@ -189,11 +201,11 @@ public class AddressBookDB {
 			throw new DatabaseException("Unable to add new contact");
 		}
 		try (Statement statement = connection.createStatement()) {
-			String sql = String.format("INSERT INTO addressBook (contact_id,addName,type) " + "VALUES ('%s','%s','%s')",
-					contactId, addName, type);
+			String sql = String.format("INSERT INTO addressBook (id,contact_id,addName,type) " + "VALUES ('%s','%s','%s','%s')",
+					addId,contactId, addName, type);
 			int rowAffected = statement.executeUpdate(sql);
 			if (rowAffected == 1) {
-				contact = new Contact(fname, lname, address, city, state, Long.parseLong(zip), Long.parseLong(phone),
+				contact = new Contact(fname, lname, address, city, state,zip, phone,
 						email);
 			}
 		} catch (SQLException e) {
