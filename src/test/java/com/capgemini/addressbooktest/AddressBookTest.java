@@ -105,17 +105,50 @@ public class AddressBookTest {
 	
 	private Contact[] getContactList() {
 		Response response = RestAssured.get("/contact");
-		System.out.println("Employee payroll entries in JSONServer:\n"+response.asString());
+		System.out.println("Contact entries in JSONServer:\n"+response.asString());
 		Contact[] arrayOfContact = new Gson().fromJson(response.asString(),Contact[].class);
 		return arrayOfContact;
 	}
+	private Response addContactToJsonServer(Contact contact) {
+		String contactJson = new Gson().toJson(contact);
+		RequestSpecification request = RestAssured.given();
+		request.header("Content-Type", "application/json");
+		request.body(contactJson);
+		return request.post("/contact");
+	}
 	
 	@Test
-	public void givenEmployeeDataInJSONServer_WhenRetrieved_ShouldMatchTheCount() {
+	public void givenContactDataInJSONServer_WhenRetrieved_ShouldMatchTheCount() {
 		Contact[] arrayOfContact = getContactList();
 		AddressBookService addressBookService = new AddressBookService(Arrays.asList(arrayOfContact));
 		long entries = addressBookService.countEntries(IOService.REST_IO);
 		assertEquals(1,entries);
-		
+	}
+	
+	@Test
+	public void givenListOfNewContacts_WhenAdded_ShouldMatch201ResponseAndCount() {
+		Contact[] arrayOfContact = getContactList();
+		AddressBookService addService = new AddressBookService(Arrays.asList(arrayOfContact));
+		Contact[] arrayOfCon = {new Contact("Aniket","Sarap","Kaulkhed", "Akola","Maharashtra", 444001L, 8850273350L,"abcd@gmail.com",LocalDate.of(2021, 01, 01),2),
+				new Contact("Sachin","Badhe","Kaulkhed", "Akola","Maharashtra", 444001L, 7887483853L,"abcd@gmail.com",LocalDate.of(2021, 01, 01),2)};
+		List<Contact> contactList = Arrays.asList(arrayOfCon);
+		contactList.forEach(contact -> {
+			Runnable task = () -> {
+				Response response = addContactToJsonServer(contact);
+				int statusCode = response.getStatusCode();
+				assertEquals(201, statusCode);
+				Contact newContact = new Gson().fromJson(response.asString(), Contact.class);
+				addService.addContactToAddressBook(newContact);
+			};
+			Thread thread = new Thread(task, contact.firstName);
+			thread.start();
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+		long count = addService.countEntries(IOService.REST_IO);
+		assertEquals(3, count);
 	}
 }
