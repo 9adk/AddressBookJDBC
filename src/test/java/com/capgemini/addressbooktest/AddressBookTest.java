@@ -10,13 +10,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.junit.Before;
 import org.junit.Test;
-
 import com.capgemini.addressbookdb.AddressBookService;
 import com.capgemini.addressbookdb.Contact;
 import com.capgemini.addressbookdb.DatabaseException;
 import com.capgemini.addressbookdb.AddressBookService.IOService;
+import com.google.gson.Gson;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 
 public class AddressBookTest {
 	
@@ -92,5 +95,27 @@ public class AddressBookTest {
 		System.out.println("Duration with Thread: " + Duration.between(start, end));
 		boolean result = addressBookService.checkContactInSyncWithDB(Arrays.asList("Aniket Sarap"));
 		assertEquals(true,result);
+	}
+	
+	@Before
+	public void setup() {
+		RestAssured.baseURI = "http://localhost";
+		RestAssured.port = 3000;
+	}
+	
+	private Contact[] getContactList() {
+		Response response = RestAssured.get("/contact");
+		System.out.println("Employee payroll entries in JSONServer:\n"+response.asString());
+		Contact[] arrayOfContact = new Gson().fromJson(response.asString(),Contact[].class);
+		return arrayOfContact;
+	}
+	
+	@Test
+	public void givenEmployeeDataInJSONServer_WhenRetrieved_ShouldMatchTheCount() {
+		Contact[] arrayOfContact = getContactList();
+		AddressBookService addressBookService = new AddressBookService(Arrays.asList(arrayOfContact));
+		long entries = addressBookService.countEntries(IOService.REST_IO);
+		assertEquals(1,entries);
+		
 	}
 }

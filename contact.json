@@ -1,0 +1,21 @@
+{
+"contact": [
+        {  
+        "id" : 1,
+      "fname": "Aniket",
+      "lname":"Sarap",
+      "address": "Kaulkhed",
+      "zip": 444001,
+      "city": "Akola",
+      "state":"Maharashtra",
+      "phone":7887483853,
+      "email":"abc@gmail.com",
+      "start": {
+        "year": 2000,
+        "month": 11,
+        "day": 5
+            }
+        }
+        
+    ]
+}

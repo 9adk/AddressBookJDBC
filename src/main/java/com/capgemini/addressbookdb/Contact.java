@@ -14,6 +14,7 @@ public class Contact{
 	public String email;
 	public int addId;
 	public LocalDate date;
+	public int id;
 	public Contact(String firstName,String lastName,String address,String city,String state,long zip,long phoneNumber,String email) {
 	    this.firstName = firstName;
 	    this.lastName = lastName;
@@ -30,6 +31,11 @@ public class Contact{
 	    this.date = date;
 	    this.addId = add_id;
 	   
+	}
+	public Contact(int id,String firstName,String lastName,String address,String city,String state,long zip,long phoneNumber,String email,LocalDate date) {
+	    this(firstName,lastName,address,city,state,zip,phoneNumber,email);
+	    this.id = id;
+	    this.date = date;
 	}
 	@Override
 	public int hashCode() {

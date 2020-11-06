@@ -35,7 +35,9 @@ public class AddressBookService {
 	public AddressBookService() {
 		addressBookDB = AddressBookDB.getInstance();
 	}
-
+	public AddressBookService(List<Contact> list) {
+		this.contactList = new ArrayList<>(list);
+	}
 	public void writeData(Map<String, AddressBook> cityBookMap) {
 		StringBuffer employeeBuffer = new StringBuffer();
 		for (Map.Entry<String, AddressBook> entry : cityBookMap.entrySet()) {
@@ -248,11 +250,7 @@ public class AddressBookService {
 	}
 
 	public long countEntries(IOService ioService) {
-		int result = 0;
-		if (ioService.equals(IOService.DB_IO)) {
-			result = contactList.size();
-		}
-		return result;
+		return contactList.size();
 	}
 
 	/**

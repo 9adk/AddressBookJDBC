@@ -85,7 +85,7 @@ public class AddressBookDB {
 			result = contactStatement.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}	
 		return result;
 	}
 
@@ -199,8 +199,8 @@ public class AddressBookDB {
 			String sql = String.format("INSERT INTO addressbookjoin (contact_id, add_id) " + "VALUES ('%s','%s')",contactId,addId);
 			int rowAffected = statement.executeUpdate(sql);
 			if (rowAffected == 1) {
-				contact = new Contact(fname, lname, address, city, state,zip, phone,
-						email);
+				contact = new Contact(contactId,fname, lname, address, city, state,zip, phone,
+						email,date);
 			}
 		} catch (SQLException e) {
 			try {
