@@ -16,23 +16,6 @@
         "day": 1
       },
       "id": 3
-    },
-    {
-      "firstName": "Sachin",
-      "lastName": "Badhe",
-      "address": "Kaulkhed",
-      "city": "Akola",
-      "state": "Maharashtra",
-      "zip": 444001,
-      "phoneNumber": 8877442233,
-      "email": "abcd@gmail.com",
-      "addId": 2,
-      "date": {
-        "year": 2021,
-        "month": 1,
-        "day": 1
-      },
-      "id": 4
     }
   ]
 }

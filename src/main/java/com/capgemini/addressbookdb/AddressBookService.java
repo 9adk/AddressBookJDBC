@@ -305,4 +305,10 @@ public class AddressBookService {
 	public void addContactToAddressBook(Contact contact) {
 		contactList.add(contact);
 	}
+	public void deleteContactFromAddressBook(String firstName, IOService ioService) {
+		if(ioService.equals(IOService.REST_IO)) {
+			Contact contact = this.getContact(firstName);
+			contactList.remove(contact);
+		}	
+	}
 }
