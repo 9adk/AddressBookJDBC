@@ -39,7 +39,7 @@ public class AddressBookService {
 		this();
 		this.contactList = new ArrayList<>(list);
 	}
-	public void writeData(Map<String, AddressBook> cityBookMap) {
+	public void writeData(Map<String, AddressBook> cityBookMap) throws AddressBookException {
 		StringBuffer employeeBuffer = new StringBuffer();
 		for (Map.Entry<String, AddressBook> entry : cityBookMap.entrySet()) {
 			entry.getValue().getContactList().forEach(contact -> {
@@ -50,15 +50,15 @@ public class AddressBookService {
 		try {
 			Files.write(Paths.get(FILE_NAME), employeeBuffer.toString().getBytes());
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new AddressBookException("Unable to write data to the text file");
 		}
 	}
 
-	public void readData() {
+	public void readData() throws AddressBookException {
 		try {
 			Files.lines(new File(FILE_NAME).toPath()).forEach(System.out::println);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new AddressBookException("Unable to read data from the text file");
 		}
 	}
 
@@ -66,8 +66,9 @@ public class AddressBookService {
 	 * Usecase14 For Writing the data to CSV File
 	 * 
 	 * @param cityBookMap
+	 * @throws AddressBookException 
 	 */
-	public void writeDataToCSV(Map<String, AddressBook> cityBookMap) {
+	public void writeDataToCSV(Map<String, AddressBook> cityBookMap) throws AddressBookException {
 		Path path = Paths.get(CSV_FILE);
 		try {
 			FileWriter outputfile = new FileWriter(path.toFile());
@@ -80,14 +81,15 @@ public class AddressBookService {
 			}
 			writer.close();
 		} catch (IOException exception) {
-			exception.printStackTrace();
+			throw new AddressBookException("Unable to write data to the csv file");
 		}
 	}
 
 	/**
 	 * Reading data from the CSV file
+	 * @throws AddressBookException 
 	 */
-	public void readDataFromCSV() {
+	public void readDataFromCSV() throws AddressBookException {
 		try {
 			Reader fileReader = Files.newBufferedReader(Paths.get(CSV_FILE));
 			@SuppressWarnings("resource")
@@ -99,7 +101,7 @@ public class AddressBookService {
 						+ " Email: " + data[7]);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new AddressBookException("Unable to read data from the csv file");
 		}
 	}
 
@@ -119,7 +121,7 @@ public class AddressBookService {
 				try {
 					writer.write(json);
 				} catch (IOException e) {
-					e.printStackTrace();
+					System.out.println(e);
 				}
 			});
 		}
@@ -128,8 +130,9 @@ public class AddressBookService {
 
 	/**
 	 * Usecase15 using GSON reading from a JSON file
+	 * @throws AddressBookException 
 	 */
-	public void readDataFromJSON() {
+	public void readDataFromJSON() throws AddressBookException {
 		Gson gson = new Gson();
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(Paths.get(JSON_FILE).toFile()));
@@ -142,7 +145,7 @@ public class AddressBookService {
 				}
 			}
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			throw new AddressBookException("Unable to read data from the json file");
 		}
 	}
 
@@ -240,7 +243,7 @@ public class AddressBookService {
 			try {
 				thread.join();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				System.out.println(Thread.currentThread().getName()+" is interrupted");
 			}
 		});
 	}
@@ -282,15 +285,16 @@ public class AddressBookService {
 		});
 	}
 
-	public boolean checkContactInSyncWithDB(List<String> nameList) throws DatabaseException {
+	public boolean checkContactInSyncWithDB(List<String> nameList) {
 		List<Boolean> resultList = new ArrayList<>();
 		nameList.forEach(name -> {
 			List<Contact> employeeList;
-			try {
-				employeeList = addressBookDB.getContactFromData(name);
-				resultList.add(employeeList.get(0).equals(getContact(name)));
-			} catch (DatabaseException e) {
-			}
+				try {
+					employeeList = addressBookDB.getContactFromData(name);
+					resultList.add(employeeList.get(0).equals(getContact(name)));
+				} catch (DatabaseException e) {
+					System.out.println("Unable to retrieve the data for "+name+" in database");
+				}
 		});
 		if (resultList.contains(false)) {
 			return false;

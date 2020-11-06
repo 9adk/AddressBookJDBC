@@ -58,9 +58,8 @@ public class AddressBookDB {
 			contactList = this.getContactData(resultSet);
 			return contactList;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DatabaseException("Unable to retrieve data");
 		}
-		return contactList;
 	}
 	/**
 	 * Usecase17: Updating phone number of a persons in contact table
@@ -84,7 +83,7 @@ public class AddressBookDB {
 			contactStatement.setString(2, name);
 			result = contactStatement.executeUpdate();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new DatabaseException("Unable to execute the update query on contact_table");
 		}	
 		return result;
 	}
@@ -113,7 +112,7 @@ public class AddressBookDB {
 			ResultSet resultSet = statement.executeQuery(sql);
 			contactList = this.getContactData(resultSet);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DatabaseException("Unable to retrieve data from the contact_table");
 		}
 		return contactList;
 	}
@@ -175,7 +174,7 @@ public class AddressBookDB {
 			connection = this.getConnection();
 			connection.setAutoCommit(false);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new DatabaseException("Unable to establish connection with database");
 		}
 		try (Statement statement = connection.createStatement()) {
 			String sql = String.format("INSERT INTO contact_table (fname, lname, address,zip,city,state,phone,email,date) "
