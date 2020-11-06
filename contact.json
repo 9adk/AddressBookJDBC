@@ -1,22 +1,6 @@
 {
   "contact": [
     {
-      "id": 1,
-      "fname": "Aniket",
-      "lname": "Sarap",
-      "address": "Kaulkhed",
-      "zip": 444001,
-      "city": "Akola",
-      "state": "Maharashtra",
-      "phone": 7887483853,
-      "email": "abc@gmail.com",
-      "start": {
-        "year": 2000,
-        "month": 11,
-        "day": 5
-      }
-    },
-    {
       "firstName": "Aniket",
       "lastName": "Sarap",
       "address": "Kaulkhed",
@@ -31,7 +15,7 @@
         "month": 1,
         "day": 1
       },
-      "id": 2
+      "id": 3
     },
     {
       "firstName": "Sachin",
@@ -40,7 +24,7 @@
       "city": "Akola",
       "state": "Maharashtra",
       "zip": 444001,
-      "phoneNumber": 7887483853,
+      "phoneNumber": 8877442233,
       "email": "abcd@gmail.com",
       "addId": 2,
       "date": {
@@ -48,7 +32,7 @@
         "month": 1,
         "day": 1
       },
-      "id": 3
+      "id": 4
     }
   ]
 }

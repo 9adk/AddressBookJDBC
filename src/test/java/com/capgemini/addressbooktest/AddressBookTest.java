@@ -22,7 +22,7 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 public class AddressBookTest {
-	
+
 	@Test
 	public void givenContactDataInDB_WhenRetrieved_ShouldMatchContactCount() throws DatabaseException {
 		AddressBookService addressBookService = new AddressBookService();
@@ -34,7 +34,7 @@ public class AddressBookTest {
 	public void givenNewDataForContact_WhenUpdated_ShouldBeInSync() throws DatabaseException, SQLException {
 		AddressBookService addressBookService = new AddressBookService();
 		addressBookService.readContactData(IOService.DB_IO);
-		addressBookService.updatePersonsPhone("Aditya Kharade", 8850273350L);
+		addressBookService.updatePersonsPhone("Aditya Kharade", 8850273350L,IOService.DB_IO);
 		addressBookService.readContactData(IOService.DB_IO);
 		boolean result = addressBookService.checkContactDataSync("Aditya Kharade");
 		assertEquals(true, result);
@@ -95,8 +95,7 @@ public class AddressBookTest {
 		System.out.println("Duration with Thread: " + Duration.between(start, end));
 		boolean result = addressBookService.checkContactInSyncWithDB(Arrays.asList("Aniket Sarap"));
 		assertEquals(true,result);
-	}
-	
+	}	
 	@Before
 	public void setup() {
 		RestAssured.baseURI = "http://localhost";
@@ -124,7 +123,7 @@ public class AddressBookTest {
 		long entries = addressBookService.countEntries(IOService.REST_IO);
 		assertEquals(1,entries);
 	}
-	
+
 	@Test
 	public void givenListOfNewContacts_WhenAdded_ShouldMatch201ResponseAndCount() {
 		Contact[] arrayOfContact = getContactList();
@@ -150,5 +149,20 @@ public class AddressBookTest {
 		});
 		long count = addService.countEntries(IOService.REST_IO);
 		assertEquals(3, count);
+	}
+
+	@Test 
+	public void givenNewPhoneForContact_WhenUpdated_ShouldMatch200Request() throws DatabaseException, SQLException {
+		Contact[] arrayOfContact = getContactList();
+		AddressBookService addService = new AddressBookService(Arrays.asList(arrayOfContact));
+		addService.updatePersonsPhone("Sachin",8877442233L,IOService.REST_IO);
+		Contact contact = addService.getContact("Sachin");
+		String contactJson = new Gson().toJson(contact);
+		RequestSpecification request = RestAssured.given();
+		request.header("Content-Type","application/json");
+		request.body(contactJson);
+		Response response = request.put("/contact/"+contact.id);
+		int statusCode = response.getStatusCode();
+		assertEquals(200,statusCode);			
 	}
 }

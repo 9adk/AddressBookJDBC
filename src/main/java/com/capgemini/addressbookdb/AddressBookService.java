@@ -36,6 +36,7 @@ public class AddressBookService {
 		addressBookDB = AddressBookDB.getInstance();
 	}
 	public AddressBookService(List<Contact> list) {
+		this();
 		this.contactList = new ArrayList<>(list);
 	}
 	public void writeData(Map<String, AddressBook> cityBookMap) {
@@ -163,16 +164,18 @@ public class AddressBookService {
 	 * @throws DatabaseException
 	 * @throws SQLException
 	 */
-	public void updatePersonsPhone(String name, long phone) throws DatabaseException, SQLException {
-		int result = addressBookDB.updatePersonsData(name, phone);
-		if (result == 0)
-			return;
+	public void updatePersonsPhone(String name, long phone,IOService ioService) throws DatabaseException, SQLException {
+		if (ioService.equals(IOService.DB_IO)) {
+			int result = addressBookDB.updatePersonsData(name, phone);
+			if (result == 0)
+				return;
+		}
 		Contact contact = this.getContact(name);
 		if (contact != null)
 			contact.phoneNumber = phone;
 	}
 
-	private Contact getContact(String name) {
+	public Contact getContact(String name) {
 		Contact contact = this.contactList.stream().filter(
 				contactData -> contactData.firstName.equals(name))
 				.findFirst().orElse(null);
@@ -263,7 +266,7 @@ public class AddressBookService {
 			Runnable task = () -> {
 				System.out.println("Contact Being Added: " + Thread.currentThread().getName());
 				try {
-					this.updatePersonsPhone(k, v);
+					this.updatePersonsPhone(k, v,IOService.DB_IO);
 				} catch (SQLException | DatabaseException e) {
 					e.printStackTrace();
 				}
